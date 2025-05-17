@@ -1,3 +1,0 @@
-struct dummy {
-  int field{};
-};
