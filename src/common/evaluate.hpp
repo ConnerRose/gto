@@ -121,11 +121,11 @@ constexpr std::array<hand_t, NUM_RANKS> RANK_MASKS = make_rank_masks();
     if (!is_flush(hand, suit)) {
       continue;
     }
-    if (auto suit_rank = handle_straight(hand & SUIT_MASKS[suit]);
-        suit_rank.category == STRAIGHT) {
+    if (auto hand_rank = handle_straight(hand & SUIT_MASKS[suit]);
+        hand_rank.category == STRAIGHT) {
       return {
           .category = STRAIGHT_FLUSH,
-          .primary = suit_rank.primary,
+          .primary = hand_rank.primary,
           .secondary = 0,
           .kickers = 0,
       };
