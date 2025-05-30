@@ -108,7 +108,7 @@ constexpr std::array<hand_t, NUM_RANKS> RANK_MASKS = make_rank_masks();
   if (std::popcount(static_cast<uint16_t>(cards & mask)) == HAND_SIZE) {
     return {
         .category = STRAIGHT,
-        .primary = SIX,
+        .primary = FIVE,
         .secondary = 0,
         .kickers = 0,
     };
