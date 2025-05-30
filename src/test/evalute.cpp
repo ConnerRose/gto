@@ -89,7 +89,7 @@ void test_straight_flush() {
   };
 
   std::vector<rank_t> expected_primaries = {ACE,  KING,  QUEEN, JACK, TEN,
-                                            NINE, EIGHT, SEVEN, SIX,  SIX};
+                                            NINE, EIGHT, SEVEN, SIX,  FIVE};
 
   for (size_t i = 0; i < test_hands.size(); ++i) {
     hand_t hand = 0;
