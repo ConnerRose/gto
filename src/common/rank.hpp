@@ -20,6 +20,7 @@ constexpr rank_t JACK = 9;
 constexpr rank_t QUEEN = 10;
 constexpr rank_t KING = 11;
 constexpr rank_t ACE = 12;
+constexpr rank_t INVALID_RANK = NUM_RANKS;
 
 constexpr std::array<char, NUM_RANKS> RANK_CHARS = {
     '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A',
@@ -69,7 +70,7 @@ constexpr std::array<char, NUM_RANKS> RANK_CHARS = {
     case 'A':
       return ACE;
     default:
-      return NUM_RANKS;
+      return INVALID_RANK;
   }
 }
 

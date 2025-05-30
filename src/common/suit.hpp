@@ -11,6 +11,7 @@ constexpr suit_t CLUBS = 0;
 constexpr suit_t DIAMONDS = 1;
 constexpr suit_t HEARTS = 2;
 constexpr suit_t SPADES = 3;
+constexpr suit_t INVALID_SUIT = NUM_SUITS;
 
 constexpr std::array<char, NUM_SUITS> SUIT_CHARS = {'c', 'd', 'h', 's'};
 
@@ -39,7 +40,7 @@ constexpr std::array<char, NUM_SUITS> SUIT_CHARS = {'c', 'd', 'h', 's'};
     case 'S':
       return SPADES;
     default:
-      return NUM_SUITS;
+      return INVALID_SUIT;
   }
 }
 
