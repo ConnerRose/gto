@@ -38,40 +38,13 @@ struct hand_rank_t {
   kicker_t kickers{};
 };
 
-[[nodiscard]] constexpr std::array<hand_t, NUM_SUITS> make_suit_masks() {
-  std::array<hand_t, NUM_SUITS> suit_masks{0};
-  for (suit_t suit = 0; suit < NUM_SUITS; ++suit) {
-    for (rank_t rank = 0; rank < NUM_RANKS; ++rank) {
-      suit_masks[suit] = add_card(suit_masks[suit], make_card(rank, suit));
-    }
-  }
-  return suit_masks;
-}
-
-[[nodiscard]] constexpr std::array<hand_t, NUM_RANKS> make_rank_masks() {
-  std::array<hand_t, NUM_RANKS> rank_masks{0};
-  for (suit_t suit = 0; suit < NUM_SUITS; ++suit) {
-    for (rank_t rank = 0; rank < NUM_RANKS; ++rank) {
-      rank_masks[rank] = add_card(rank_masks[rank], make_card(rank, suit));
-    }
-  }
-  return rank_masks;
-}
-
-constexpr std::array<hand_t, NUM_SUITS> SUIT_MASKS = make_suit_masks();
-constexpr std::array<hand_t, NUM_RANKS> RANK_MASKS = make_rank_masks();
-
-[[nodiscard]] constexpr bool is_flush(hand_t hand, suit_t suit) {
-  return std::popcount(hand & SUIT_MASKS[suit]) >= HAND_SIZE;
-}
-
 [[nodiscard]] constexpr kicker_t get_kickers(hand_t hand,
                                              int num_kickers = HAND_SIZE) {
   kicker_t kickers{0};
   int count{0};
   for (rank_t i = 0; i < NUM_RANKS; ++i) {
     rank_t rank = ACE - i;
-    if (std::popcount(hand & RANK_MASKS[rank]) > 0) {
+    if (rank_count(hand, rank) > 0) {
       kickers |= (1 << rank);
       if (++count == num_kickers) {
         break;
@@ -118,7 +91,7 @@ constexpr std::array<hand_t, NUM_RANKS> RANK_MASKS = make_rank_masks();
 
 [[nodiscard]] constexpr hand_rank_t handle_straight_flush(hand_t hand) {
   for (suit_t suit = 0; suit < NUM_SUITS; ++suit) {
-    if (!is_flush(hand, suit)) {
+    if (suit_count(hand, suit) < HAND_SIZE) {
       continue;
     }
     if (auto hand_rank = handle_straight(hand & SUIT_MASKS[suit]);
@@ -137,7 +110,7 @@ constexpr std::array<hand_t, NUM_RANKS> RANK_MASKS = make_rank_masks();
 [[nodiscard]] constexpr hand_rank_t handle_four_of_a_kind(hand_t hand) {
   for (rank_t i = 0; i < NUM_RANKS; ++i) {
     rank_t rank = ACE - i;
-    if (std::popcount(hand & RANK_MASKS[rank]) == 4) {
+    if (rank_count(hand, rank) == 4) {
       return {
           .category = FOUR_OF_A_KIND,
           .primary = rank,
@@ -153,7 +126,7 @@ constexpr std::array<hand_t, NUM_RANKS> RANK_MASKS = make_rank_masks();
   rank_t primary = NUM_RANKS;
   for (rank_t i = 0; i < NUM_RANKS; ++i) {
     rank_t rank = ACE - i;
-    if (std::popcount(hand & RANK_MASKS[rank]) == 3) {
+    if (rank_count(hand, rank) == 3) {
       primary = rank;
       break;
     }
@@ -164,7 +137,7 @@ constexpr std::array<hand_t, NUM_RANKS> RANK_MASKS = make_rank_masks();
   hand &= ~RANK_MASKS[primary];
   for (rank_t i = 0; i < NUM_RANKS; ++i) {
     rank_t rank = ACE - i;
-    if (std::popcount(hand & RANK_MASKS[rank]) == 2) {
+    if (rank_count(hand, rank) == 2) {
       return {
           .category = FULL_HOUSE,
           .primary = primary,
@@ -178,7 +151,7 @@ constexpr std::array<hand_t, NUM_RANKS> RANK_MASKS = make_rank_masks();
 
 [[nodiscard]] constexpr hand_rank_t handle_flush(hand_t hand) {
   for (suit_t suit = 0; suit < NUM_SUITS; ++suit) {
-    if (is_flush(hand, suit)) {
+    if (suit_count(hand, suit) >= HAND_SIZE) {
       return {
           .category = FLUSH,
           .primary = 0,
@@ -193,7 +166,7 @@ constexpr std::array<hand_t, NUM_RANKS> RANK_MASKS = make_rank_masks();
 [[nodiscard]] constexpr hand_rank_t handle_three_of_a_kind(hand_t hand) {
   for (rank_t i = 0; i < NUM_RANKS; ++i) {
     rank_t rank = ACE - i;
-    if (std::popcount(hand & RANK_MASKS[rank]) == 3) {
+    if (rank_count(hand, rank) == 3) {
       return {
           .category = THREE_OF_A_KIND,
           .primary = rank,
@@ -210,7 +183,7 @@ constexpr std::array<hand_t, NUM_RANKS> RANK_MASKS = make_rank_masks();
   rank_t secondary = NUM_RANKS;
   for (rank_t i = 0; i < NUM_RANKS; ++i) {
     rank_t rank = ACE - i;
-    if (std::popcount(hand & RANK_MASKS[rank]) == 2) {
+    if (rank_count(hand, rank) == 2) {
       if (primary == NUM_RANKS) {
         primary = rank;
       } else {
@@ -231,7 +204,7 @@ constexpr std::array<hand_t, NUM_RANKS> RANK_MASKS = make_rank_masks();
 [[nodiscard]] constexpr hand_rank_t handle_one_pair(hand_t hand) {
   for (rank_t i = 0; i < NUM_RANKS; ++i) {
     rank_t rank = ACE - i;
-    if (std::popcount(hand & RANK_MASKS[rank]) == 2) {
+    if (rank_count(hand, rank) == 2) {
       return {
           .category = ONE_PAIR,
           .primary = rank,

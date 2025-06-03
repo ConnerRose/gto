@@ -5,6 +5,7 @@
 #include <initializer_list>
 
 #include "card.hpp"
+#include "suit.hpp"
 
 namespace common {
 
@@ -20,6 +21,29 @@ constexpr hand_t EMPTY_HAND = 0;
 [[nodiscard]] constexpr hand_t add_card(hand_t hand, card_t card) {
   return hand | (1ULL << card);
 }
+
+[[nodiscard]] constexpr std::array<hand_t, NUM_SUITS> make_suit_masks() {
+  std::array<hand_t, NUM_SUITS> suit_masks{0};
+  for (suit_t suit = 0; suit < NUM_SUITS; ++suit) {
+    for (rank_t rank = 0; rank < NUM_RANKS; ++rank) {
+      suit_masks[suit] = add_card(suit_masks[suit], make_card(rank, suit));
+    }
+  }
+  return suit_masks;
+}
+
+[[nodiscard]] constexpr std::array<hand_t, NUM_RANKS> make_rank_masks() {
+  std::array<hand_t, NUM_RANKS> rank_masks{0};
+  for (suit_t suit = 0; suit < NUM_SUITS; ++suit) {
+    for (rank_t rank = 0; rank < NUM_RANKS; ++rank) {
+      rank_masks[rank] = add_card(rank_masks[rank], make_card(rank, suit));
+    }
+  }
+  return rank_masks;
+}
+
+constexpr std::array<hand_t, NUM_SUITS> SUIT_MASKS = make_suit_masks();
+constexpr std::array<hand_t, NUM_RANKS> RANK_MASKS = make_rank_masks();
 
 [[nodiscard]] constexpr hand_t remove_card(hand_t hand, card_t card) {
   return hand & ~(1ULL << card);
@@ -39,6 +63,14 @@ constexpr hand_t EMPTY_HAND = 0;
 
 [[nodiscard]] constexpr int hand_size(hand_t hand) {
   return std::popcount(hand);
+}
+
+[[nodiscard]] constexpr int suit_count(hand_t hand, suit_t suit) {
+  return std::popcount(hand & SUIT_MASKS[suit]);
+}
+
+[[nodiscard]] constexpr int rank_count(hand_t hand, rank_t rank) {
+  return std::popcount(hand & RANK_MASKS[rank]);
 }
 
 };  // namespace common
